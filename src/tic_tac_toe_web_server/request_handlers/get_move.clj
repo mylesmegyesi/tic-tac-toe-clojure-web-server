@@ -6,6 +6,10 @@
   (:import [HttpServer ResponseHeader Headers.ConnectionClose Headers.DateHeader Responses.OK Exceptions.ResponseException]
            [java.io ByteArrayInputStream]))
 
+(defn can-respond [request]
+  (and (= "GET" (.action request)) (= "/get-move" (.url request)))
+  )
+
 (defn parse-board [string-board]
   (read-json string-board)
   )
@@ -32,16 +36,14 @@
   )
 
 (defn- response-headers [move]
-  (list
-    (ResponseHeader. "Content-Length" (str (.length move)))
-    (ResponseHeader. "Content-Type" "application/json") (ConnectionClose.) (DateHeader.))
+  (list (ResponseHeader. "Content-Length" (str (.length move))) (ResponseHeader. "Content-Type" "application/json") (ConnectionClose.) (DateHeader.))
   )
 
 (defn get-callback [callback move]
   (str callback "(" move ")")
   )
 
-(defn- getResponse [request]
+(defn get-response [request]
   (let [player (.get (.parameters request) "player")
         board (.get (.parameters request) "board")
         callback (.get (.parameters request) "callback")
@@ -52,8 +54,8 @@
 
 (deftype get-move []
   HttpServer.RequestHandler
-  (canRespond [this request] (and (= "GET" (.action request)) (= "/get-move" (.url request))))
-  (getResponse [this request] (getResponse request)))
+  (canRespond [this request] (can-respond request))
+  (getResponse [this request] (get-response request)))
 
 (defn new-get-move []
   (get-move.))

@@ -1,23 +1,27 @@
 (ns tic-tac-toe-web-server.request-handlers.get-move-spec
   (:use [speclj.core]
-        [tic-tac-toe-web-server.request-handlers.get-move :only [new-get-move parse-board convert-board convert-player convert-move get-computer-move]]
+        [tic-tac-toe-web-server.request-handlers.get-move]
         [tic-tac-toe.constants :only [P1 P2 NOONE]])
   (:import [HttpServer Request Exceptions.ResponseException Responses.OK]
            [java.util.HashMap]))
 
 (describe "get-move"
 
-  (with get-move (new-get-move))
+  (context "constructor"
+    (it "isn't nil"
+      (should-not= nil (new-get-move))
+      )
+    )
 
   (context "can respond"
     (it "responds to GET at /get-move"
-      (should (.canRespond @get-move (Request. "GET" "/get-move" "" {} {})))
+      (should (can-respond (Request. "GET" "/get-move" "" {} {})))
       )
     (it "doesn't respond to POST at /get-move"
-      (should-not (.canRespond @get-move (Request. "POST" "/get-move" "" {} {})))
+      (should-not (can-respond (Request. "POST" "/get-move" "" {} {})))
       )
     (it "doesn't respond to GET at /somethingelse"
-      (should-not (.canRespond @get-move (Request. "GET" "/somethingelse" "" {} {})))
+      (should-not (can-respond (Request. "GET" "/somethingelse" "" {} {})))
       )
     )
 
@@ -63,7 +67,13 @@
 
   (context "get response"
     (it "returns ok"
-      (should= OK (type (.getResponse @get-move (Request. "GET" "/get-move" "" {} {"board" "[\"O\",null,null,null,null,null,null,null,null]" "player" "O"}))))
+      (should= OK (type (get-response (Request. "GET" "/get-move" "" {} {"board" "[\"O\",null,null,null,null,null,null,null,null]" "player" "O"}))))
+      )
+    )
+
+  (context "get callback"
+    (it "returns callback with result in parens"
+      (should= "ald;sfjalj(1)" (get-callback "ald;sfjalj" 1))
       )
     )
 
