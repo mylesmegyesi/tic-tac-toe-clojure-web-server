@@ -32,14 +32,21 @@
   )
 
 (defn- response-headers [move]
-  (list (ResponseHeader. "Content-Length" (.length move)) (ResponseHeader. "Content-Type" "application/json") (ConnectionClose.) (DateHeader.))
+  (list
+    (ResponseHeader. "Content-Length" (str (.length move)))
+    (ResponseHeader. "Content-Type" "application/json") (ConnectionClose.) (DateHeader.))
+  )
+
+(defn get-callback [callback move]
+  (str callback "(" move ")")
   )
 
 (defn- getResponse [request]
   (let [player (.get (.parameters request) "player")
         board (.get (.parameters request) "board")
-        move (str (convert-move (get-computer-move player (convert-board (parse-board board)))))]
-    (OK. (response-headers move) (ByteArrayInputStream. (.getBytes move)))
+        callback (.get (.parameters request) "callback")
+        response (get-callback callback (str (convert-move (get-computer-move player (convert-board (parse-board board))))))]
+    (OK. (response-headers response) (ByteArrayInputStream. (.getBytes response)))
     )
   )
 
